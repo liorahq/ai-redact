@@ -130,9 +130,13 @@ AI Redact is configurable through the extension settings panel:
 
 ## Roadmap
 
-- [x] Core detection engine with 12+ patterns
-- [x] VS Code extension with real-time scanning
-- [x] AI prompt interception (Copilot, Cursor, Windsurf)
+- [x] Core detection engine with 14 patterns (4 PII, 7 secrets, 2 tokens, 1 entropy)
+- [x] VS Code extension with real-time scanning, inline diagnostics, quick-fix redaction
+- [x] Status bar indicator with finding count
+- [x] Configuration panel (enable/disable detectors, severity levels, scan-on-type toggle)
+- [x] 60 unit tests covering true positives, true negatives, and edge cases
+- [ ] AI prompt interception (Copilot, Cursor, Windsurf)
+- [ ] OAuth registration flow (GitHub + Google)
 - [ ] Chrome browser extension (ChatGPT, Claude, Gemini)
 - [ ] Firefox browser extension
 - [ ] JetBrains plugin
@@ -141,6 +145,8 @@ AI Redact is configurable through the extension settings panel:
 - [ ] Team dashboard with aggregate findings
 - [ ] EU AI Act compliance evidence mapping
 - [ ] Enhanced NLP detection via Presidio sidecar
+
+See [documentation/currently-implemented.md](documentation/currently-implemented.md) for full details on what's built, and [documentation/future-implementation.md](documentation/future-implementation.md) for the complete roadmap.
 
 ## Contributing
 
