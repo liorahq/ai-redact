@@ -9,8 +9,10 @@
 ![Tests](https://img.shields.io/badge/tests-73%20passing-brightgreen.svg)
 ![CLI](https://img.shields.io/badge/CLI-Available-green.svg)
 
-<!-- TODO: Add 30-second demo GIF here -->
-<!-- ![Demo](docs/assets/demo.gif) -->
+> Works with **VS Code, Copilot, Cursor, Windsurf, and Claude Code.**
+
+<!-- TODO: Replace with demo GIF once recorded -->
+<!-- ![Demo](https://raw.githubusercontent.com/liorahq/ai-redact/main/docs/assets/demo.gif) -->
 
 ---
 
@@ -251,7 +253,7 @@ git clone https://github.com/liorahq/ai-redact.git
 cd ai-redact
 npm install
 npm run build
-npm test          # 60 tests, all passing
+npm test          # 73 tests, all passing
 ```
 
 To run the VS Code extension locally:
@@ -279,9 +281,7 @@ AI Redact processes everything locally. The free tier sends **zero data** off yo
 
 ## Links
 
-- [Website](https://lioraengine.com) (coming soon)
-- [VS Code Marketplace](https://marketplace.visualstudio.com/) (coming soon)
-- [Discord Community](https://discord.gg/) (coming soon)
+- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=liorahq.ai-redact)
 - [Report a Bug](https://github.com/liorahq/ai-redact/issues)
 
 ---
