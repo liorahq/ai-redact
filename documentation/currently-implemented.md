@@ -180,6 +180,8 @@ Two interception layers that scan AI chat prompts for sensitive data before they
 | `aiRedact.scanCurrentFile` | AI Redact: Scan Current File | Manually triggers a full scan of the active editor |
 | `aiRedact.redactAll` | AI Redact: Redact All Findings in Current File | Scans, shows confirmation dialog with finding count, replaces all findings with placeholders |
 | `aiRedact.toggleEnabled` | AI Redact: Toggle Scanner | Toggles `aiRedact.enabled` globally, clears/refreshes diagnostics accordingly |
+| `aiRedact.enableClaudeCodeHook` | AI Redact: Enable Claude Code Integration | Installs the UserPromptSubmit hook into `~/.claude/settings.json` |
+| `aiRedact.disableClaudeCodeHook` | AI Redact: Disable Claude Code Integration | Removes the AI Redact hook from Claude Code settings |
 | `aiRedact.chatForwardRedacted` | (internal) | Copies redacted prompt to clipboard from chat participant button |
 | `aiRedact.chatForwardOriginal` | (internal) | Copies original prompt to clipboard from chat participant button |
 
