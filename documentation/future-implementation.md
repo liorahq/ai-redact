@@ -14,8 +14,12 @@ The following are fully implemented (see `currently-implemented.md` for details)
 - VS Code extension with real-time code scanning, inline diagnostics, quick-fix redaction
 - AI prompt interception via proxy language model provider (warn/redact/block modes)
 - `@redact` chat participant with `/scan` command
-- Status bar indicator, configuration panel, 60 unit tests
+- CLI tool with scan, redact, JSON output, and Claude Code hook mode (13 tests)
+- Claude Code auto-detection with one-click hook installation
+- Status bar indicator, configuration panel, 73 unit tests (60 core + 13 CLI)
 - Monorepo infrastructure with npm workspaces
+- Published to VS Code Marketplace as `liorahq.ai-redact` (v0.1.2)
+- esbuild bundling, `.vscodeignore`, shield icon, marketplace README
 
 ---
 
