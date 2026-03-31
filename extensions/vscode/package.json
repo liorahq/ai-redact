@@ -1,0 +1,105 @@
+{
+  "name": "ai-redact",
+  "displayName": "AI Redact — PII & Secret Scanner for AI Assistants",
+  "description": "Catches PII, secrets, and credentials before they reach AI models. Scans code in real-time and intercepts AI chat prompts.",
+  "version": "0.1.0",
+  "publisher": "liorahq",
+  "license": "Apache-2.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Linters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "AI security",
+    "DLP",
+    "PII detection",
+    "secrets scanner",
+    "data loss prevention",
+    "credential scanner",
+    "privacy",
+    "GDPR",
+    "EU AI Act",
+    "Copilot security",
+    "ChatGPT security",
+    "sensitive data",
+    "API key scanner",
+    "secret detection",
+    "data protection"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "AI Redact",
+      "properties": {
+        "aiRedact.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable AI Redact scanning"
+        },
+        "aiRedact.scanOnType": {
+          "type": "boolean",
+          "default": true,
+          "description": "Scan documents as you type"
+        },
+        "aiRedact.minSeverity": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"],
+          "default": "medium",
+          "description": "Minimum severity level to report"
+        },
+        "aiRedact.enabledDetectors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "List of detector names to enable. Empty means all detectors are active."
+        },
+        "aiRedact.secretSeverity": {
+          "type": "string",
+          "enum": ["warning", "error"],
+          "default": "error",
+          "description": "Diagnostic severity for secrets (error = red, warning = yellow)"
+        },
+        "aiRedact.piiSeverity": {
+          "type": "string",
+          "enum": ["warning", "error", "information"],
+          "default": "warning",
+          "description": "Diagnostic severity for PII detections"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "aiRedact.scanCurrentFile",
+        "title": "AI Redact: Scan Current File"
+      },
+      {
+        "command": "aiRedact.redactAll",
+        "title": "AI Redact: Redact All Findings in Current File"
+      },
+      {
+        "command": "aiRedact.toggleEnabled",
+        "title": "AI Redact: Toggle Scanner"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npx @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@ai-redact/core": "*"
+  }
+}

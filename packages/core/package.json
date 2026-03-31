@@ -1,0 +1,20 @@
+{
+  "name": "@ai-redact/core",
+  "version": "0.1.0",
+  "description": "Core detection engine for AI Redact — catches PII, secrets, and credentials",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc -p tsconfig.test.json && node --test dist-tests/tests/**/*.test.js",
+    "test:watch": "tsc -p tsconfig.test.json --watch & node --test --watch dist-tests/tests/"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^5.4.0"
+  }
+}
