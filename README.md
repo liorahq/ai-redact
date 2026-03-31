@@ -6,7 +6,7 @@
 
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![VS Code](https://img.shields.io/badge/VS%20Code-Extension-007ACC.svg)
-![Chrome](https://img.shields.io/badge/Chrome-Extension-4285F4.svg)
+![Tests](https://img.shields.io/badge/tests-60%20passing-brightgreen.svg)
 
 <!-- TODO: Add 30-second demo GIF here -->
 <!-- ![Demo](docs/assets/demo.gif) -->
@@ -25,21 +25,25 @@
 
 AI Redact sits between you and your AI tools. It scans everything before it reaches the model and blocks or warns when it detects sensitive data.
 
-**IDE Extension** — Scans your code and intercepts AI assistant prompts in VS Code, Cursor, and Windsurf.
+**Real-time Code Scanning** — Scans your code as you type. Yellow warnings for PII, red errors for secrets. Quick-fix actions to redact with one click.
 
-**Browser Extension** — Intercepts requests to ChatGPT, Claude, and Gemini before submission.
+**AI Prompt Interception** — Proxy model provider wraps Copilot, Claude, and other models. Select "AI Redact: GPT-4o (Protected)" in the model dropdown and every message is scanned before it reaches the AI. `@redact` chat participant for explicit prompt scanning.
+
+**Browser Extension** (coming soon) — Intercepts requests to ChatGPT, Claude, and Gemini before submission.
 
 **All processing happens locally. No data ever leaves your machine.**
 
 ## Detection Patterns
 
-| Category | What It Catches |
-|----------|----------------|
-| **PII** | Email addresses, phone numbers (international), Social Security Numbers, EU national IDs, credit card numbers (Luhn validated) |
-| **Cloud Secrets** | AWS access keys and secret keys, Google API keys and OAuth secrets |
-| **Code Secrets** | GitHub personal access tokens, Stripe API keys (live and test), private SSH keys (RSA, ED25519) |
-| **Auth Tokens** | JWT tokens, database connection strings (PostgreSQL, MySQL, MongoDB) |
-| **Generic** | High-entropy strings (Shannon entropy > 4.5) |
+14 detection patterns across 4 categories:
+
+| Category | What It Catches | Severity |
+|----------|----------------|----------|
+| **PII** | Email addresses (RFC 5322), international phone numbers, Social Security Numbers, credit card numbers (Luhn validated) | medium-high |
+| **Cloud Secrets** | AWS access keys and secret keys, Google API keys, Google OAuth secrets | high-critical |
+| **Code Secrets** | GitHub PATs (classic + fine-grained), Stripe API keys (live + test), private SSH keys (RSA, ED25519, EC, DSA, OpenSSH) | critical |
+| **Auth Tokens** | JWT tokens (3-part base64url), database connection strings (PostgreSQL, MySQL, MongoDB) | high-critical |
+| **Generic** | High-entropy strings (Shannon entropy > 4.5) with false positive filtering | medium |
 
 ## Quick Start
 
@@ -52,98 +56,120 @@ code --install-extension liorahq.ai-redact
 
 Or search for **"AI Redact"** in the VS Code Extensions panel.
 
-### Browser Extension
+### Using the AI Prompt Interceptor
 
-Chrome Web Store link coming soon.
+1. Open VS Code Chat (Copilot, Cursor, or Windsurf)
+2. Switch the model dropdown to **"AI Redact: [Model] (Protected)"**
+3. Chat normally — AI Redact scans every message before it reaches the model
+4. Sensitive data is warned, redacted, or blocked based on your settings
+
+Or use the chat participant directly:
+
+```
+@redact Explain this code: const key = "AKIAIOSFODNN7EXAMPLE"
+@redact /scan Check this for secrets: sk_live_4eC39HqLyjWDarjtT1zdp7dc
+```
 
 ## How It Works
 
 ```
 You type code or a prompt
-        │
-        ▼
-  ┌─────────────┐
-  │  AI Redact   │  ← Scans for PII, secrets, credentials
-  │  Detection   │
-  │  Engine      │
-  └──────┬──────┘
-         │
-    ┌────┴────┐
-    │         │
+        |
+        v
+  +-------------+
+  |  AI Redact   |  <-- Scans for PII, secrets, credentials
+  |  Detection   |
+  |  Engine      |
+  +------+------+
+         |
+    +----+----+
+    |         |
   Clean    Sensitive
-    │      detected
-    ▼         │
-  Sent to     ▼
-  AI model  ⚠️ Warning
-            Block / Redact / Allow
+    |      detected
+    v         |
+  Sent to     v
+  AI model  Warning / Redact / Block
 ```
 
-### IDE Extension Flow
+### Code Scanning
 
-1. You write code or open AI chat in your IDE
-2. AI Redact scans the content in real-time
-3. **Yellow warning** for PII detection
-4. **Red error** for secrets and credentials
-5. Quick-fix action: "Redact this value" replaces with a safe placeholder
-6. AI prompt interception: scans chat messages before they reach Copilot/Cursor/Windsurf
+1. You write code or open a file in your IDE
+2. AI Redact scans the content in real-time (300ms debounce)
+3. **Yellow warning** for PII detection (email, phone, SSN, credit card)
+4. **Red error** for secrets and credentials (AWS keys, GitHub tokens, etc.)
+5. Quick-fix action: click the lightbulb to "Redact this value" with a placeholder
+6. "Redact All" command replaces every finding in the file at once
 
-### Browser Extension Flow
+### AI Prompt Interception
 
-1. You type a message in ChatGPT, Claude, or Gemini
-2. AI Redact intercepts the request before it's sent
-3. Warning overlay appears if sensitive data is detected
-4. Choose: **Block** / **Allow** / **Redact and Send**
+1. You select a protected proxy model in the chat dropdown
+2. AI Redact intercepts every message before it reaches the underlying model
+3. Based on `aiRedact.interceptionMode`:
+   - **warn** (default) — shows a banner, forwards the original prompt
+   - **redact** — replaces sensitive values with `[TYPE_REDACTED]` before forwarding
+   - **block** — stops the request entirely, shows what was detected
+
+## Configuration
+
+All settings are under `aiRedact.*` in VS Code Settings:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enabled` | `true` | Master on/off switch |
+| `scanOnType` | `true` | Scan documents as you type |
+| `minSeverity` | `"medium"` | Minimum severity to report (`low` / `medium` / `high` / `critical`) |
+| `enabledDetectors` | `[]` (all) | Specific detector names to enable |
+| `secretSeverity` | `"error"` | Diagnostic severity for secrets (red squiggle) |
+| `piiSeverity` | `"warning"` | Diagnostic severity for PII (yellow squiggle) |
+| `interceptionMode` | `"warn"` | How the proxy model handles sensitive data: `warn` / `redact` / `block` |
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `AI Redact: Scan Current File` | Manually trigger a full scan |
+| `AI Redact: Redact All Findings in Current File` | Replace all findings with placeholders |
+| `AI Redact: Toggle Scanner` | Enable or disable scanning (also via status bar click) |
 
 ## Project Structure
 
 ```
 ai-redact/
 ├── packages/
-│   └── core/                    # Shared detection engine (TypeScript)
+│   └── core/                        # Shared detection engine (TypeScript)
 │       ├── src/
-│       │   ├── index.ts         # scan(), redact(), getDetectors()
-│       │   ├── types.ts         # Detection, Detector, ScanResult interfaces
+│       │   ├── index.ts             # scan(), redact(), getDetectors()
+│       │   ├── types.ts             # Detection, Detector, ScanResult interfaces
 │       │   └── detectors/
-│       │       ├── pii.ts       # Email, phone, SSN, credit card (Luhn)
-│       │       ├── secrets.ts   # AWS, GitHub, Stripe, Google, SSH keys
-│       │       ├── tokens.ts    # JWT, database connection strings
-│       │       └── entropy.ts   # Shannon entropy detector
-│       └── tests/               # 60 unit tests
+│       │       ├── pii.ts           # Email, phone, SSN, credit card (Luhn)
+│       │       ├── secrets.ts       # AWS, GitHub, Stripe, Google, SSH keys
+│       │       ├── tokens.ts        # JWT, database connection strings
+│       │       └── entropy.ts       # Shannon entropy detector
+│       └── tests/                   # 60 unit tests
 ├── extensions/
-│   ├── vscode/                  # VS Code extension
+│   ├── vscode/                      # VS Code extension
 │   │   └── src/
-│   │       ├── extension.ts     # Diagnostics, quick-fix, status bar
+│   │       ├── extension.ts         # Diagnostics, quick-fix, status bar
 │   │       ├── chat-participant.ts  # @redact chat participant
-│   │       └── model-proxy.ts   # Proxy language model provider
-│   └── chrome/                  # Chrome browser extension (coming soon)
+│   │       └── model-proxy.ts       # Proxy language model provider
+│   └── chrome/                      # Chrome browser extension (coming soon)
 ├── apps/
-│   └── dashboard/               # Team dashboard (coming soon)
+│   └── dashboard/                   # Team dashboard (coming soon)
 ├── documentation/
-│   ├── currently-implemented.md # What's built
-│   └── future-implementation.md # What's planned
-├── LICENSE
-├── CONTRIBUTING.md
+│   ├── currently-implemented.md     # What's built
+│   └── future-implementation.md     # What's planned
+├── LICENSE                          # Apache 2.0
 └── README.md
 ```
-
-## Configuration
-
-AI Redact is configurable through the extension settings panel:
-
-- **Enable/disable specific detectors** — Turn off patterns you don't need
-- **Set sensitivity levels** — Adjust entropy thresholds and pattern strictness
-- **Custom patterns** — Add your own regex patterns for organization-specific data
-- **Block vs Warn mode** — Choose whether to block or just warn on detection
 
 ## Roadmap
 
 - [x] Core detection engine with 14 patterns (4 PII, 7 secrets, 2 tokens, 1 entropy)
 - [x] VS Code extension with real-time scanning, inline diagnostics, quick-fix redaction
+- [x] AI prompt interception — proxy model provider + @redact chat participant (warn/redact/block)
 - [x] Status bar indicator with finding count
-- [x] Configuration panel (enable/disable detectors, severity levels, scan-on-type toggle)
+- [x] Configuration panel (enable/disable detectors, severity levels, interception mode)
 - [x] 60 unit tests covering true positives, true negatives, and edge cases
-- [x] AI prompt interception — proxy model provider + @redact chat participant (warn/redact/block modes)
-- [ ] OAuth registration flow (GitHub + Google)
 - [ ] Chrome browser extension (ChatGPT, Claude, Gemini)
 - [ ] Firefox browser extension
 - [ ] JetBrains plugin
@@ -153,16 +179,53 @@ AI Redact is configurable through the extension settings panel:
 - [ ] EU AI Act compliance evidence mapping
 - [ ] Enhanced NLP detection via Presidio sidecar
 
-See [documentation/currently-implemented.md](documentation/currently-implemented.md) for full details on what's built, and [documentation/future-implementation.md](documentation/future-implementation.md) for the complete roadmap.
+See [documentation/currently-implemented.md](documentation/currently-implemented.md) for full technical details on what's built, and [documentation/future-implementation.md](documentation/future-implementation.md) for the complete roadmap.
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+We welcome contributions! The easiest way to contribute is adding a new detection pattern.
 
-- Adding new detection patterns
-- Improving existing detectors
-- Building extensions for new platforms
-- Reporting bugs and suggesting features
+Each detector is a function matching this interface:
+
+```typescript
+type Detector = (text: string) => Detection[];
+
+interface Detection {
+  type: string;        // e.g. "aws-secret-key", "email"
+  category: "pii" | "secret" | "credential" | "token";
+  severity: "low" | "medium" | "high" | "critical";
+  start: number;       // character offset
+  end: number;         // character offset
+  message: string;     // human-readable description
+}
+```
+
+**Good first patterns to add:** Azure connection strings, Slack webhook URLs, Twilio API keys, IP addresses (IPv4/IPv6), IBAN numbers.
+
+### Development Setup
+
+```bash
+git clone https://github.com/liorahq/ai-redact.git
+cd ai-redact
+npm install
+npm run build
+npm test          # 60 tests, all passing
+```
+
+To run the VS Code extension locally:
+
+```bash
+cd extensions/vscode
+npm run compile
+# Press F5 in VS Code to launch the Extension Development Host
+```
+
+### Code Guidelines
+
+- **TypeScript** for all new code
+- **No external dependencies** in the core detection engine
+- **Tests required** for all detection patterns (true positives + true negatives)
+- **One pattern per PR** when adding new detectors
 
 ## Privacy
 

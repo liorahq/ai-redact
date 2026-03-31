@@ -5,6 +5,15 @@
   "version": "0.1.0",
   "publisher": "liorahq",
   "license": "Apache-2.0",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liorahq/ai-redact"
+  },
+  "homepage": "https://github.com/liorahq/ai-redact#readme",
+  "bugs": {
+    "url": "https://github.com/liorahq/ai-redact/issues"
+  },
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -122,7 +131,7 @@
     "package": "npx @vscode/vsce package --no-dependencies"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
+    "@types/vscode": "^1.93.0",
     "typescript": "^5.4.0"
   },
   "dependencies": {
