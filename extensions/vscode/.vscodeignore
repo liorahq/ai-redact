@@ -1,0 +1,7 @@
+**
+!dist/extension.js
+!dist/extension.js.map
+!package.json
+!icon.png
+!LICENSE
+!CHANGELOG.md

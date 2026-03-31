@@ -74,31 +74,49 @@
         },
         "aiRedact.minSeverity": {
           "type": "string",
-          "enum": ["low", "medium", "high", "critical"],
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
           "default": "medium",
           "description": "Minimum severity level to report"
         },
         "aiRedact.enabledDetectors": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "default": [],
           "description": "List of detector names to enable. Empty means all detectors are active."
         },
         "aiRedact.secretSeverity": {
           "type": "string",
-          "enum": ["warning", "error"],
+          "enum": [
+            "warning",
+            "error"
+          ],
           "default": "error",
           "description": "Diagnostic severity for secrets (error = red, warning = yellow)"
         },
         "aiRedact.piiSeverity": {
           "type": "string",
-          "enum": ["warning", "error", "information"],
+          "enum": [
+            "warning",
+            "error",
+            "information"
+          ],
           "default": "warning",
           "description": "Diagnostic severity for PII detections"
         },
         "aiRedact.interceptionMode": {
           "type": "string",
-          "enum": ["warn", "redact", "block"],
+          "enum": [
+            "warn",
+            "redact",
+            "block"
+          ],
           "default": "warn",
           "enumDescriptions": [
             "Show a warning but forward the original prompt to the AI model",
@@ -125,16 +143,16 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run bundle",
     "compile": "tsc -p ./",
+    "bundle": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
     "watch": "tsc -watch -p ./",
     "package": "npx @vscode/vsce package --no-dependencies"
   },
   "devDependencies": {
+    "@ai-redact/core": "*",
     "@types/vscode": "^1.93.0",
+    "esbuild": "^0.27.4",
     "typescript": "^5.4.0"
-  },
-  "dependencies": {
-    "@ai-redact/core": "*"
   }
 }
