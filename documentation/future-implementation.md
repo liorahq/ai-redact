@@ -6,12 +6,14 @@ Roadmap of features not yet built, organized by priority and phase.
 
 ## Phase 1 Remaining — VS Code Extension Completion
 
-### AI Prompt Interception
+### ~~AI Prompt Interception~~ — DONE
 
-- Register as proxy model provider via VS Code Language Model Chat Provider API
-- Intercept all chat requests before forwarding to Copilot / Cursor / Windsurf
-- Block or warn before sensitive data reaches the LLM
-- This is the core differentiator — scanning code is table stakes, intercepting AI prompts is the value
+Implemented via two layers:
+- **Proxy Language Model Provider** — registers protected proxy models in the chat dropdown
+- **Chat Participant (`@redact`)** — explicit invocation for scanning prompts
+- Three interception modes: warn, redact, block
+
+See `currently-implemented.md` for full details.
 
 ### Registration & Authentication Flow
 

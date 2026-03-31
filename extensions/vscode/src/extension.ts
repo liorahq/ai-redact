@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import { scan, redact, getDetectors, ScanOptions, Detection, Severity } from "@ai-redact/core";
+import { registerChatParticipant, registerChatCommands } from "./chat-participant";
+import { registerModelProxy } from "./model-proxy";
 
 const DIAGNOSTIC_SOURCE = "AI Redact";
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -9,6 +11,11 @@ let scanTimeout: ReturnType<typeof setTimeout> | undefined;
 export function activate(context: vscode.ExtensionContext) {
   diagnosticCollection = vscode.languages.createDiagnosticCollection("ai-redact");
   context.subscriptions.push(diagnosticCollection);
+
+  // AI prompt interception — chat participant (@redact) and proxy model provider
+  registerChatParticipant(context);
+  registerChatCommands(context);
+  registerModelProxy(context);
 
   // Status bar
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);

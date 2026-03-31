@@ -112,7 +112,9 @@ ai-redact/
 ├── extensions/
 │   ├── vscode/                  # VS Code extension
 │   │   └── src/
-│   │       └── extension.ts     # Diagnostics, quick-fix, status bar
+│   │       ├── extension.ts     # Diagnostics, quick-fix, status bar
+│   │       ├── chat-participant.ts  # @redact chat participant
+│   │       └── model-proxy.ts   # Proxy language model provider
 │   └── chrome/                  # Chrome browser extension (coming soon)
 ├── apps/
 │   └── dashboard/               # Team dashboard (coming soon)
@@ -140,7 +142,7 @@ AI Redact is configurable through the extension settings panel:
 - [x] Status bar indicator with finding count
 - [x] Configuration panel (enable/disable detectors, severity levels, scan-on-type toggle)
 - [x] 60 unit tests covering true positives, true negatives, and edge cases
-- [ ] AI prompt interception (Copilot, Cursor, Windsurf)
+- [x] AI prompt interception — proxy model provider + @redact chat participant (warn/redact/block modes)
 - [ ] OAuth registration flow (GitHub + Google)
 - [ ] Chrome browser extension (ChatGPT, Claude, Gemini)
 - [ ] Firefox browser extension

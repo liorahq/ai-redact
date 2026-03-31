@@ -103,6 +103,34 @@ Full extension scaffold with all Phase 1 scanning features wired up.
 - Each diagnostic includes detection type as the code and human-readable message
 - Source label: "AI Redact"
 
+### AI Prompt Interception
+
+Two interception layers that scan AI chat prompts for sensitive data before they reach models.
+
+#### Chat Participant (`@redact`) — `src/chat-participant.ts`
+
+- Registered as a VS Code chat participant invoked with `@redact <prompt>`
+- Scans the prompt text using the core detection engine
+- If clean: forwards directly to the selected language model
+- If sensitive data found: shows a warning with detection summary and offers two buttons:
+  - **"Send Redacted Version"** — copies the redacted prompt to clipboard
+  - **"Send Original (Unsafe)"** — copies original with a warning
+- `/scan` slash command: scan-only mode that reports findings and shows the redacted version without forwarding
+
+#### Proxy Language Model Provider — `src/model-proxy.ts`
+
+- Registers as a VS Code Language Model Chat Provider under the `ai-redact` vendor
+- Discovers all available models (Copilot GPT-4o, Claude, etc.) and creates protected proxy versions
+- Proxy models appear in the chat model dropdown as "AI Redact: [Model Name] (Protected)"
+- When selected, ALL messages flow through the scanner before reaching the real model
+- Three interception modes (configurable via `aiRedact.interceptionMode`):
+  - **warn** (default): shows a warning banner but forwards the original prompt
+  - **redact**: automatically replaces sensitive values with `[TYPE_REDACTED]` placeholders before forwarding
+  - **block**: stops the request entirely and shows the user what was detected
+- Logs all interception activity to the "AI Redact Interceptor" output channel
+- Delegates token counting to the underlying target model
+- Refreshes available proxy models when the model list changes
+
 ### Quick-Fix Code Actions
 
 - Lightbulb menu on each finding: "Redact this [type]"
@@ -133,6 +161,7 @@ Full extension scaffold with all Phase 1 scanning features wired up.
 | `enabledDetectors` | string[] | `[]` (all) | Specific detectors to enable |
 | `secretSeverity` | enum | `"error"` | Diagnostic level for secrets |
 | `piiSeverity` | enum | `"warning"` | Diagnostic level for PII |
+| `interceptionMode` | enum | `"warn"` | How the proxy model handles sensitive data: `warn`, `redact`, or `block` |
 
 ### Extension Metadata
 
@@ -181,7 +210,9 @@ ai-redact/
 │   │   ├── package.json          # Extension manifest with contributes
 │   │   ├── tsconfig.json
 │   │   └── src/
-│   │       └── extension.ts      # Full extension: diagnostics, quick-fix, status bar
+│   │       ├── extension.ts      # Main entry: diagnostics, quick-fix, status bar
+│   │       ├── chat-participant.ts  # @redact chat participant
+│   │       └── model-proxy.ts    # Proxy language model provider
 │   └── chrome/                   # Placeholder
 └── apps/
     └── dashboard/                # Placeholder

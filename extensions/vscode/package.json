@@ -6,7 +6,7 @@
   "publisher": "liorahq",
   "license": "Apache-2.0",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.93.0"
   },
   "categories": [
     "Other",
@@ -35,6 +35,21 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "chatParticipants": [
+      {
+        "id": "ai-redact.redact",
+        "name": "redact",
+        "fullName": "AI Redact",
+        "description": "Scans your prompt for PII and secrets before sending to AI. Use @redact to protect your data.",
+        "isSticky": false,
+        "commands": [
+          {
+            "name": "scan",
+            "description": "Scan a prompt for sensitive data without sending it to AI"
+          }
+        ]
+      }
+    ],
     "configuration": {
       "title": "AI Redact",
       "properties": {
@@ -71,6 +86,17 @@
           "enum": ["warning", "error", "information"],
           "default": "warning",
           "description": "Diagnostic severity for PII detections"
+        },
+        "aiRedact.interceptionMode": {
+          "type": "string",
+          "enum": ["warn", "redact", "block"],
+          "default": "warn",
+          "enumDescriptions": [
+            "Show a warning but forward the original prompt to the AI model",
+            "Automatically redact sensitive data before forwarding to the AI model",
+            "Block the request entirely if sensitive data is detected"
+          ],
+          "description": "How the proxy model handles detected sensitive data in AI chat prompts"
         }
       }
     },
