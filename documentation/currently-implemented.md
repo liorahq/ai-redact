@@ -88,7 +88,7 @@ Filtering behavior:
 
 ### Test Suite (`tests/`)
 
-60 unit tests across 5 test files using Node.js built-in test runner (`node:test`):
+60 unit tests across 5 test files using Node.js built-in test runner (`node:test`) (+ 13 CLI tests = 73 total):
 
 | File | Tests | Coverage |
 |------|-------|----------|
