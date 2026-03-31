@@ -99,21 +99,26 @@ You type code or a prompt
 ```
 ai-redact/
 ├── packages/
-│   └── core/                 # Shared detection engine (TypeScript)
+│   └── core/                    # Shared detection engine (TypeScript)
 │       ├── src/
-│       │   ├── detectors/    # Detection pattern modules
-│       │   │   ├── pii.ts
-│       │   │   ├── secrets.ts
-│       │   │   └── entropy.ts
-│       │   ├── index.ts
-│       │   └── types.ts
-│       ├── package.json
-│       └── tsconfig.json
+│       │   ├── index.ts         # scan(), redact(), getDetectors()
+│       │   ├── types.ts         # Detection, Detector, ScanResult interfaces
+│       │   └── detectors/
+│       │       ├── pii.ts       # Email, phone, SSN, credit card (Luhn)
+│       │       ├── secrets.ts   # AWS, GitHub, Stripe, Google, SSH keys
+│       │       ├── tokens.ts    # JWT, database connection strings
+│       │       └── entropy.ts   # Shannon entropy detector
+│       └── tests/               # 60 unit tests
 ├── extensions/
-│   ├── vscode/               # VS Code extension
-│   └── chrome/               # Chrome browser extension
+│   ├── vscode/                  # VS Code extension
+│   │   └── src/
+│   │       └── extension.ts     # Diagnostics, quick-fix, status bar
+│   └── chrome/                  # Chrome browser extension (coming soon)
 ├── apps/
-│   └── dashboard/            # Team dashboard (coming soon)
+│   └── dashboard/               # Team dashboard (coming soon)
+├── documentation/
+│   ├── currently-implemented.md # What's built
+│   └── future-implementation.md # What's planned
 ├── LICENSE
 ├── CONTRIBUTING.md
 └── README.md
