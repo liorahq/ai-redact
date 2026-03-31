@@ -207,20 +207,145 @@ Two interception layers that scan AI chat prompts for sensitive data before they
 | `aiRedact.piiSeverity` | enum | `"warning"` | VS Code diagnostic severity for PII detections |
 | `aiRedact.interceptionMode` | enum | `"warn"` | How the proxy model handles detected sensitive data: `warn` / `redact` / `block` |
 
+### Claude Code Auto-Detection (`src/claude-code-hook.ts`)
+
+- On activation, checks if `anthropic.claude-code` extension is installed
+- If detected, shows a one-time notification: "Claude Code detected. Enable AI Redact to scan prompts for secrets?"
+- Three options:
+  - **Enable** — installs the `UserPromptSubmit` hook to `~/.claude/settings.json`, writes the CLI path and `--hook --stdin` flags
+  - **Not Now** — dismisses, will prompt again next session
+  - **Never** — dismisses permanently (stored in `globalState`)
+- CLI path resolution order:
+  1. Monorepo `packages/cli/dist/index.js` (development)
+  2. Bundled `dist/cli.js` within the extension
+  3. Globally installed `ai-redact` binary
+- Hook management:
+  - Reads/creates `~/.claude/settings.json` with `hooks.UserPromptSubmit` array
+  - Tags entries with `_source: "ai-redact"` marker for clean removal
+  - Updates existing hook if path changes, avoids duplicates
+- Manual commands: `aiRedact.enableClaudeCodeHook` and `aiRedact.disableClaudeCodeHook`
+
 ### Extension Metadata (`package.json`)
 
 - **Name**: `ai-redact`
-- **Display name**: "AI Redact — PII & Secret Scanner for AI Assistants"
+- **Display name**: "AI Redact — Catch Secrets Before AI"
 - **Publisher**: `liorahq`
+- **Version**: 0.1.2
 - **Engine**: VS Code `^1.93.0`
 - **Activation**: `onStartupFinished`
+- **Bundling**: esbuild (single `dist/extension.js`, `vscode` externalized)
+- **Packaging**: `vsce package --no-dependencies` (44-49 KB .vsix)
 - **Categories**: Other, Linters, Programming Languages
 - **Keywords**: 15 marketplace keywords targeting AI security, DLP, PII, secrets, GDPR, EU AI Act, Copilot security, data protection
 - **Chat participant**: `ai-redact.redact` with `/scan` command
+- **Published**: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=liorahq.ai-redact)
+
+---
+
+## CLI Tool (`packages/cli/`)
+
+Command-line scanner that integrates with Claude Code hooks, CI/CD pipelines, and Unix pipes.
+
+### Usage
+
+```bash
+ai-redact scan [options] [files...]
+ai-redact scan --stdin
+echo "text" | ai-redact scan
+ai-redact --list-detectors
+```
+
+### Scan Modes
+
+| Mode | Flags | Behavior |
+|------|-------|----------|
+| Default | `scan <files>` or pipe | Scan and print findings with source lines and caret highlighting |
+| Stdin | `--stdin` | Read from stdin explicitly |
+| JSON | `--json` | Output findings as structured JSON (for CI/CD) |
+| Redact | `--redact` | Output the redacted text to stdout |
+| Hook | `--hook` | Exit code 2 on findings (blocks Claude Code) |
+| Quiet | `--quiet` / `-q` | Suppress all output (exit code only) |
+
+### Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Clean — no sensitive data found |
+| 1 | Findings — sensitive data detected |
+| 2 | Block — sensitive data detected (hook mode, blocks Claude Code) |
+| 3 | Error — could not read input |
+
+### Filtering
+
+- `--min-severity <level>` — only report findings at or above: `low`, `medium`, `high`, `critical`
+- `--detectors <list>` — comma-separated detector names to enable
+
+### Output Format (Default)
+
+```
+<source>: N finding(s)
+
+  [CRITICAL] AWS Access Key ID detected
+    <source>:1  aws-access-key
+    const key = "AKIAIOSFODNN7EXAMPLE";
+                 ^^^^^^^^^^^^^^^^^^^^
+```
+
+### Test Suite (`tests/cli.test.ts`)
+
+13 integration tests using `execSync` to invoke the compiled CLI:
+
+- Secret detection from stdin, clean input, piped input
+- JSON output format validation
+- Redact output verification
+- Hook mode exit codes (2 for findings, 0 for clean)
+- Quiet mode suppression
+- Severity filtering
+- `--help`, `--version`, `--list-detectors` commands
 
 ---
 
 ## Project Structure
+
+```
+ai-redact/
+├── package.json                     # Monorepo root with npm workspaces
+├── tsconfig.json                    # Shared TypeScript base config
+├── .gitignore                       # Dependencies, builds, env, IDE, OS files
+├── LICENSE                          # Apache 2.0
+├── README.md                        # Project overview, quick start, contributing
+├── documentation/
+│   ├── currently-implemented.md     # This file
+│   ├── future-implementation.md     # Complete roadmap
+│   └── claude-code-hook-setup.md    # Claude Code integration guide
+├── packages/
+│   ├── core/
+│   │   ├── package.json             # @ai-redact/core, zero runtime deps
+│   │   ├── tsconfig.json            # Build config (src → dist)
+│   │   ├── tsconfig.test.json       # Test build config (src + tests → dist-tests)
+│   │   ├── src/
+│   │   │   ├── index.ts             # scan(), redact(), getDetectors(), re-exports
+│   │   │   ├── types.ts             # Detection, Detector, ScanResult, ScanOptions
+│   │   │   └── detectors/
+│   │   │       ├── index.ts         # Re-exports all detector modules
+│   │   │       ├── pii.ts           # 4 PII detectors
+│   │   │       ├── secrets.ts       # 7 secret detectors
+│   │   │       ├── tokens.ts        # 2 token detectors
+│   │   │       └── entropy.ts       # 1 entropy detector + shannonEntropy()
+│   │   └── tests/
+│   │       ├── pii.test.ts          # 17 tests
+│   │       ├── secrets.test.ts      # 15 tests
+│   │       ├── tokens.test.ts       # 8 tests
+│   │       ├── entropy.test.ts      # 10 tests
+│   │       └── scanner.test.ts      # 10 tests
+│   └── cli/
+│       ├── package.json             # @ai-redact/cli, bin: ai-redact
+│       ├── tsconfig.json            # Build config
+│       ├── tsconfig.test.json       # Test build config
+│       ├── src/
+│       │   └── index.ts             # CLI entry: scan, --hook, --redact, --json
+│       └── tests/
+│           └── cli.test.ts          # 13 integration tests
 
 ```
 ai-redact/
@@ -256,10 +381,14 @@ ai-redact/
 │   ├── vscode/
 │   │   ├── package.json             # Extension manifest, contributes, chat participant
 │   │   ├── tsconfig.json            # Build config (src → dist)
+│   │   ├── .vscodeignore            # Whitelist: dist/extension.js, package.json, icon, README, LICENSE
+│   │   ├── icon.png                 # 256x256 blue shield icon
+│   │   ├── README.md                # Marketplace-optimized README
 │   │   └── src/
 │   │       ├── extension.ts         # Activation, diagnostics, quick-fix, status bar, commands
 │   │       ├── chat-participant.ts  # @redact chat participant with /scan command
-│   │       └── model-proxy.ts       # Proxy language model provider (warn/redact/block)
+│   │       ├── model-proxy.ts       # Proxy language model provider (warn/redact/block)
+│   │       └── claude-code-hook.ts  # Auto-detect Claude Code + one-click hook install
 │   └── chrome/                      # Placeholder for Chrome extension
 └── apps/
     └── dashboard/                   # Placeholder for team dashboard
