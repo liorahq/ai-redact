@@ -54,11 +54,13 @@ Patterns to add to `packages/core/src/detectors/`:
 
 ### Extension Polish for Marketplace Launch
 
-- Demo GIF (30 seconds) showing a secret being caught and redacted
-- Extension icon and marketplace banner
+- ~~Extension icon~~ — Done (256x256 blue shield)
+- ~~README optimized for marketplace display~~ — Done (separate from GitHub README)
+- ~~Published to VS Code Marketplace~~ — Done (v0.1.2)
+- Demo GIF (30 seconds) showing a secret being caught and redacted — **critical for launch**
 - VS Code publisher verification (only 4% of publishers have it)
 - Changelog file
-- README optimized for marketplace display (different from GitHub README)
+- Reduce false positives (e.g. marketplace URLs triggering email detector)
 
 ---
 
@@ -152,12 +154,20 @@ Patterns to add to `packages/core/src/detectors/`:
 - `CopilotChat.nvim` `prepare_input` hooks for AI interception
 - Display findings via Neovim diagnostics API
 
-### CLI Tool
+### ~~CLI Tool~~ — DONE
 
-- `ai-redact scan <file>` — scan a file and report findings
+Implemented in `packages/cli/`. Features:
+- `ai-redact scan <files>`, `--stdin`, `--json`, `--redact`, `--hook`, `--quiet`
+- Claude Code `UserPromptSubmit` hook integration (exit code 2 = block)
+- Auto-detection of Claude Code in VS Code extension with one-click hook install
+- 13 integration tests
+
+See `currently-implemented.md` for full details.
+
+**Still planned:**
 - `ai-redact wrap -- <command>` — intercept stdin/stdout of AI CLI tools
 - CI/CD integration: pre-commit hooks, GitHub Actions
-- Exit codes for CI: 0 = clean, 1 = findings above threshold
+- Publish to npm as `@ai-redact/cli`
 
 ### Enhanced Detection via Presidio Sidecar
 

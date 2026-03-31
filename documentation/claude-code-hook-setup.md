@@ -10,7 +10,19 @@ AI Redact's CLI tool (`ai-redact scan --hook --stdin`) reads the prompt from std
 - **Exit 0** — clean, prompt is sent normally
 - **Exit 2** — sensitive data detected, prompt is blocked
 
-## Setup
+## Automatic Setup (Recommended)
+
+If you have both the AI Redact VS Code extension and the Claude Code extension installed, AI Redact will **automatically detect Claude Code** and offer to enable the hook with a single click.
+
+1. Install AI Redact from the VS Code Marketplace
+2. When the extension activates, it detects Claude Code and shows a notification
+3. Click **"Enable"** — done
+
+You can also trigger this manually anytime:
+- `Cmd+Shift+P` → **"AI Redact: Enable Claude Code Integration"**
+- To remove: `Cmd+Shift+P` → **"AI Redact: Disable Claude Code Integration"**
+
+## Manual Setup
 
 ### 1. Install the CLI
 

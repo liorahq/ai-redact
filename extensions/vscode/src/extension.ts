@@ -13,10 +13,11 @@ export function activate(context: vscode.ExtensionContext) {
   diagnosticCollection = vscode.languages.createDiagnosticCollection("ai-redact");
   context.subscriptions.push(diagnosticCollection);
 
-  // AI prompt interception — chat participant (@redact) and proxy model provider
+  // AI prompt interception — chat participant (@redact)
   registerChatParticipant(context);
   registerChatCommands(context);
-  registerModelProxy(context);
+  // Model proxy disabled — conflicts with Claude Code extension
+  // registerModelProxy(context);
 
   // Claude Code integration — offer to install hook if Claude Code is detected
   registerClaudeCodeHookCommand(context);
