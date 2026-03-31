@@ -2,7 +2,7 @@
   "name": "ai-redact",
   "displayName": "AI Redact — Catch Secrets Before AI",
   "description": "Catches PII, secrets, and credentials before they reach AI models. Scans code in real-time and intercepts AI chat prompts.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "liorahq",
   "license": "Apache-2.0",
   "icon": "icon.png",
@@ -139,6 +139,14 @@
       {
         "command": "aiRedact.toggleEnabled",
         "title": "AI Redact: Toggle Scanner"
+      },
+      {
+        "command": "aiRedact.enableClaudeCodeHook",
+        "title": "AI Redact: Enable Claude Code Integration"
+      },
+      {
+        "command": "aiRedact.disableClaudeCodeHook",
+        "title": "AI Redact: Disable Claude Code Integration"
       }
     ]
   },

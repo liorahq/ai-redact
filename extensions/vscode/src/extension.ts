@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { scan, redact, getDetectors, ScanOptions, Detection, Severity } from "@ai-redact/core";
 import { registerChatParticipant, registerChatCommands } from "./chat-participant";
 import { registerModelProxy } from "./model-proxy";
+import { offerClaudeCodeHook, registerClaudeCodeHookCommand } from "./claude-code-hook";
 
 const DIAGNOSTIC_SOURCE = "AI Redact";
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -16,6 +17,10 @@ export function activate(context: vscode.ExtensionContext) {
   registerChatParticipant(context);
   registerChatCommands(context);
   registerModelProxy(context);
+
+  // Claude Code integration — offer to install hook if Claude Code is detected
+  registerClaudeCodeHookCommand(context);
+  offerClaudeCodeHook(context);
 
   // Status bar
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
