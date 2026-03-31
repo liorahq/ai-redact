@@ -1,8 +1,8 @@
 {
   "name": "ai-redact",
-  "displayName": "AI Redact — PII & Secret Scanner for AI Assistants",
+  "displayName": "AI Redact — Catch Secrets Before AI",
   "description": "Catches PII, secrets, and credentials before they reach AI models. Scans code in real-time and intercepts AI chat prompts.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "liorahq",
   "license": "Apache-2.0",
   "icon": "icon.png",

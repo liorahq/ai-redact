@@ -1,0 +1,22 @@
+{
+  "name": "@ai-redact/cli",
+  "version": "0.1.0",
+  "description": "CLI tool for AI Redact — scan files and stdin for PII, secrets, and credentials",
+  "main": "dist/index.js",
+  "bin": {
+    "ai-redact": "dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc -p tsconfig.test.json && node --test dist-tests/tests/**/*.test.js"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@ai-redact/core": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^5.4.0"
+  }
+}

@@ -6,7 +6,8 @@
 
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![VS Code](https://img.shields.io/badge/VS%20Code-Extension-007ACC.svg)
-![Tests](https://img.shields.io/badge/tests-60%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-73%20passing-brightgreen.svg)
+![CLI](https://img.shields.io/badge/CLI-Available-green.svg)
 
 <!-- TODO: Add 30-second demo GIF here -->
 <!-- ![Demo](docs/assets/demo.gif) -->
@@ -29,6 +30,8 @@ AI Redact sits between you and your AI tools. It scans everything before it reac
 
 **AI Prompt Interception** — Proxy model provider wraps Copilot, Claude, and other models. Select "AI Redact: GPT-4o (Protected)" in the model dropdown and every message is scanned before it reaches the AI. `@redact` chat participant for explicit prompt scanning.
 
+**CLI Tool** — Scan files, pipe stdin, or integrate with Claude Code hooks. `ai-redact scan --hook --stdin` blocks prompts containing secrets before they reach Claude.
+
 **Browser Extension** (coming soon) — Intercepts requests to ChatGPT, Claude, and Gemini before submission.
 
 **All processing happens locally. No data ever leaves your machine.**
@@ -50,11 +53,45 @@ AI Redact sits between you and your AI tools. It scans everything before it reac
 ### VS Code Extension
 
 ```bash
-# Install from VS Code Marketplace (coming soon)
+# Install from VS Code Marketplace
 code --install-extension liorahq.ai-redact
 ```
 
 Or search for **"AI Redact"** in the VS Code Extensions panel.
+
+### CLI Tool
+
+```bash
+# Scan a file
+ai-redact scan config.yml
+
+# Pipe text
+echo "key = AKIAIOSFODNN7EXAMPLE" | ai-redact scan
+
+# Redact output
+cat secrets.env | ai-redact scan --redact > clean.env
+
+# JSON output for CI/CD
+ai-redact scan --json src/*.ts
+```
+
+### Claude Code Integration
+
+Add to `.claude/settings.json` to block prompts containing secrets:
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [{
+      "type": "command",
+      "command": "ai-redact scan --hook --stdin",
+      "timeout": 5
+    }]
+  }
+}
+```
+
+See [documentation/claude-code-hook-setup.md](documentation/claude-code-hook-setup.md) for full setup guide.
 
 ### Using the AI Prompt Interceptor
 
@@ -136,16 +173,19 @@ All settings are under `aiRedact.*` in VS Code Settings:
 ```
 ai-redact/
 ├── packages/
-│   └── core/                        # Shared detection engine (TypeScript)
-│       ├── src/
-│       │   ├── index.ts             # scan(), redact(), getDetectors()
-│       │   ├── types.ts             # Detection, Detector, ScanResult interfaces
-│       │   └── detectors/
-│       │       ├── pii.ts           # Email, phone, SSN, credit card (Luhn)
-│       │       ├── secrets.ts       # AWS, GitHub, Stripe, Google, SSH keys
-│       │       ├── tokens.ts        # JWT, database connection strings
-│       │       └── entropy.ts       # Shannon entropy detector
-│       └── tests/                   # 60 unit tests
+│   ├── core/                        # Shared detection engine (TypeScript)
+│   │   ├── src/
+│   │   │   ├── index.ts             # scan(), redact(), getDetectors()
+│   │   │   ├── types.ts             # Detection, Detector, ScanResult interfaces
+│   │   │   └── detectors/
+│   │   │       ├── pii.ts           # Email, phone, SSN, credit card (Luhn)
+│   │   │       ├── secrets.ts       # AWS, GitHub, Stripe, Google, SSH keys
+│   │   │       ├── tokens.ts        # JWT, database connection strings
+│   │   │       └── entropy.ts       # Shannon entropy detector
+│   │   └── tests/                   # 60 unit tests
+│   └── cli/                         # CLI tool
+│       └── src/
+│           └── index.ts             # ai-redact scan, --hook, --redact, --json
 ├── extensions/
 │   ├── vscode/                      # VS Code extension
 │   │   └── src/
@@ -157,7 +197,8 @@ ai-redact/
 │   └── dashboard/                   # Team dashboard (coming soon)
 ├── documentation/
 │   ├── currently-implemented.md     # What's built
-│   └── future-implementation.md     # What's planned
+│   ├── future-implementation.md     # What's planned
+│   └── claude-code-hook-setup.md    # Claude Code integration guide
 ├── LICENSE                          # Apache 2.0
 └── README.md
 ```
@@ -169,12 +210,13 @@ ai-redact/
 - [x] AI prompt interception — proxy model provider + @redact chat participant (warn/redact/block)
 - [x] Status bar indicator with finding count
 - [x] Configuration panel (enable/disable detectors, severity levels, interception mode)
-- [x] 60 unit tests covering true positives, true negatives, and edge cases
+- [x] 73 unit tests covering true positives, true negatives, and edge cases
+- [x] CLI tool with scan, redact, JSON output, and hook mode
+- [x] Claude Code integration via UserPromptSubmit hooks
 - [ ] Chrome browser extension (ChatGPT, Claude, Gemini)
 - [ ] Firefox browser extension
 - [ ] JetBrains plugin
 - [ ] Neovim plugin
-- [ ] CLI tool
 - [ ] Team dashboard with aggregate findings
 - [ ] EU AI Act compliance evidence mapping
 - [ ] Enhanced NLP detection via Presidio sidecar
