@@ -68,6 +68,11 @@ async function installHook(context: vscode.ExtensionContext): Promise<void> {
 
     const hookCommand = `node "${cliPath}" scan --hook --stdin`;
 
+    // Ensure required Claude Code fields exist
+    if (!settings.permissions) {
+      settings.permissions = [];
+    }
+
     // Add the hook
     if (!settings.hooks) {
       settings.hooks = {};
